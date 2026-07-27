@@ -13,6 +13,11 @@ const COLORS = [
     '#e57373', // Z - red
     '#7986cb', // J - indigo
     '#ffb74d', // L - orange
+    '#f06292', // 8  Cruz    pink
+    '#4db6ac', // 9  U       teal
+    '#ff8a65', // 10 Y       coral
+    '#bdbdbd', // 11 1×1     gray
+    '#a1887f', // 12 hueco   brown
 ];
 
 const PIECES = [
@@ -24,6 +29,11 @@ const PIECES = [
     [[5, 5, 0], [0, 5, 5], [0, 0, 0]],                  // Z
     [[6, 0, 0], [6, 6, 6], [0, 0, 0]],                  // J
     [[0, 0, 7], [7, 7, 7], [0, 0, 0]],                  // L
+    [[0, 8, 0], [8, 8, 8], [0, 8, 0]],                  // Cruz +
+    [[9, 0, 9], [9, 0, 9], [9, 9, 9]],                  // U
+    [[10, 0, 10], [10, 10, 10], [0, 10, 0]],            // Y
+    [[11]],                                              // 1×1
+    [[12, 12, 12], [12, 0, 12], [12, 12, 12]],          // 3×3 hueco
 ];
 
 const LINE_SCORES = [0, 100, 300, 500, 800];
@@ -40,14 +50,15 @@ const overlayTitle = document.getElementById('overlay-title');
 const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
 
-let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
+let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId, classicMode;
 
 function createBoard() {
     return Array.from({length: ROWS}, () => new Array(COLS).fill(0));
 }
 
 function randomPiece() {
-    const type = Math.floor(Math.random() * 7) + 1;
+    const max = classicMode ? 7 : PIECES.length - 1;
+    const type = Math.floor(Math.random() * max) + 1;
     const shape = PIECES[type].map(row => [...row]);
     return {type, shape, x: Math.floor(COLS / 2) - Math.floor(shape[0].length / 2), y: 0};
 }
@@ -153,7 +164,7 @@ function spawn() {
 function updateHUD() {
     scoreEl.textContent = score.toLocaleString();
     linesEl.textContent = lines;
-    levelEl.textContent = level;
+    levelEl.textContent = level + (classicMode ? ' CLÁS' : '');
 }
 
 function drawBlock(context, x, y, colorIndex, size, alpha) {
@@ -231,6 +242,7 @@ function togglePause() {
     paused = !paused;
     if (!paused) {
         lastTime = performance.now();
+        overlay.classList.add('hidden');
         loop(lastTime);
     } else {
         cancelAnimationFrame(animId);
@@ -263,6 +275,7 @@ function init() {
     level = 1;
     paused = false;
     gameOver = false;
+    classicMode = false;
     dropInterval = 1000;
     dropAccum = 0;
     lastTime = performance.now();
@@ -279,19 +292,23 @@ document.addEventListener('keydown', e => {
         togglePause();
         return;
     }
+    if (e.code === 'KeyC') {
+        classicMode = !classicMode;
+        updateHUD();
+        return;
+    }
     if (paused || gameOver) return;
     switch (e.code) {
-        case 'ArrowLeft':
+        case 'KeyM':
             if (!collide(current.shape, current.x - 1, current.y)) current.x--;
             break;
-        case 'ArrowRight':
+        case 'Period':
             if (!collide(current.shape, current.x + 1, current.y)) current.x++;
             break;
-        case 'ArrowDown':
+        case 'Comma':
             softDrop();
             break;
-        case 'ArrowUp':
-        case 'KeyX':
+        case 'KeyK':
             tryRotate();
             break;
         case 'Space':
