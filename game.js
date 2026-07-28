@@ -218,6 +218,7 @@ function hardDrop() {
   const gy = ghostY();
   score += (gy - current.y) * 2;
   current.y = gy;
+  updateHUD();
   lockPiece();
 }
 
