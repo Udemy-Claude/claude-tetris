@@ -35,10 +35,10 @@ body {
 
 /* ---- Panel lateral ---- */
 .panel {
-    width: 160px;
+    width: 170px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
     padding-top: 4px;
 }
 
@@ -68,6 +68,78 @@ body {
     border: 1px solid #2a2a3a;
     background: #1a1a25;
     border-radius: 4px;
+}
+
+/* ---- Skin select ---- */
+#skin-select {
+    background: #22223a;
+    color: #ccc;
+    border: 1px solid #3a3a5a;
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+#skin-select:focus {
+    outline: none;
+    border-color: #7aa2f7;
+}
+
+/* ---- High scores panel ---- */
+#hs-list-panel {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    color: #888;
+    line-height: 1.6;
+}
+
+.hs-entry {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.hs-entry .hs-name {
+    color: #aaa;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hs-entry .hs-score {
+    color: #7aa2f7;
+    flex-shrink: 0;
+}
+
+.hs-entry.is-new {
+    background: rgba(122, 162, 247, 0.15);
+    border-radius: 2px;
+    padding: 0 2px;
+}
+
+.hs-empty {
+    color: #555;
+    font-size: 11px;
+    font-style: italic;
+}
+
+.small-btn {
+    background: transparent;
+    color: #555570;
+    border: 1px solid #3a3a5a;
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.small-btn:hover {
+    color: #e57373;
+    border-color: #e57373;
 }
 
 /* ---- Controles ---- */
@@ -103,9 +175,10 @@ kbd {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(10, 10, 20, 0.75);
-    backdrop-filter: blur(4px);
+    background: rgba(10, 10, 20, 0.8);
+    backdrop-filter: blur(5px);
     border-radius: 4px;
+    z-index: 10;
 }
 
 .overlay.hidden {
@@ -116,25 +189,161 @@ kbd {
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
     align-items: center;
+    min-width: 220px;
 }
 
-#overlay-title {
+.overlay-box .hidden {
+    display: none;
+}
+
+/* ---- Screen titles ---- */
+.screen-title {
     font-size: 28px;
     font-weight: 800;
     letter-spacing: 4px;
+}
+
+.title-start {
+    font-size: 36px;
+    color: #7aa2f7;
+    letter-spacing: 8px;
+}
+
+.title-gameover {
     color: #e57373;
 }
 
-#overlay-score {
+/* ---- Start screen ---- */
+.press-key {
+    font-size: 13px;
+    color: #777;
+    animation: blink 1.2s ease-in-out infinite;
+    margin-top: 8px;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* ---- High scores overlay ---- */
+.hs-overlay-title {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #555570;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.hs-ol {
+    list-style: none;
+    text-align: left;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
+    font-size: 13px;
+    line-height: 1.8;
+    min-width: 200px;
+}
+
+.hs-ol li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: #aaa;
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+.hs-ol li .hs-rank {
+    color: #555570;
+    width: 20px;
+}
+
+.hs-ol li .hs-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hs-ol li .hs-score-val {
+    color: #7aa2f7;
+    text-align: right;
+}
+
+.hs-ol li.hs-top1 .hs-rank { color: #ffd54f; }
+.hs-ol li.hs-top2 .hs-rank { color: #bdbdbd; }
+.hs-ol li.hs-top3 .hs-rank { color: #ffb74d; }
+
+.hs-ol li.is-new {
+    background: rgba(122, 162, 247, 0.2);
+}
+
+.hs-ol li.is-new .hs-score-val {
+    color: #ffd54f;
+}
+
+.hs-empty-msg {
+    color: #555;
+    font-size: 13px;
+    font-style: italic;
+}
+
+/* ---- Game over ---- */
+#go-score {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
     color: #7aa2f7;
 }
 
-#restart-btn {
-    margin-top: 8px;
+#go-bests {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    color: #888;
+    line-height: 1.5;
+}
+
+.name-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+#name-input {
+    background: #1a1a25;
+    border: 1px solid #3a3a5a;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #e0e0e0;
+    width: 120px;
+}
+
+#name-input:focus {
+    outline: none;
+    border-color: #7aa2f7;
+}
+
+#save-btn {
+    background: #7aa2f7;
+    color: #0f0f17;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+#save-btn:hover {
+    background: #9bbdff;
+}
+
+/* ---- Menu buttons ---- */
+.menu-btn {
     background: #7aa2f7;
     color: #0f0f17;
     border: none;
@@ -145,8 +354,86 @@ kbd {
     cursor: pointer;
     letter-spacing: 1px;
     transition: background 0.15s;
+    min-width: 160px;
 }
 
-#restart-btn:hover {
+.menu-btn:hover {
     background: #9bbdff;
+}
+
+.menu-btn.small-btn {
+    background: transparent;
+    color: #555570;
+    border: 1px solid #3a3a5a;
+    padding: 5px 14px;
+    font-size: 11px;
+    min-width: auto;
+}
+
+.menu-btn.small-btn:hover {
+    color: #e57373;
+    border-color: #e57373;
+}
+
+/* ---- Menu sections ---- */
+.menu-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    width: 100%;
+}
+
+.menu-section .label {
+    font-size: 10px;
+}
+
+.menu-section .controls-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: left;
+}
+
+.menu-section .controls-list li {
+    font-size: 12px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.menu-section .controls-list kbd {
+    background: #22223a;
+    border: 1px solid #3a3a5a;
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 11px;
+    font-family: inherit;
+    color: #aaa;
+}
+
+/* ---- Level selector ---- */
+#lvl-select {
+    background: #1a1a25;
+    color: #ccc;
+    border: 1px solid #3a3a5a;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    width: 80px;
+    text-align: center;
+}
+
+#lvl-select:focus {
+    outline: none;
+    border-color: #7aa2f7;
+}
+
+/* ---- Pause title ---- */
+#scr-pause .screen-title {
+    color: #ffd54f;
 }

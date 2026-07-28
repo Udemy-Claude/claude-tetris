@@ -30,14 +30,30 @@
                 <canvas id="next-canvas" width="120" height="120"></canvas>
             </div>
 
+            <div class="panel-section">
+                <span class="label">SKIN</span>
+                <select id="skin-select">
+                    <option value="retro">Retro</option>
+                    <option value="neon">Neon</option>
+                    <option value="pastel">Pastel</option>
+                    <option value="pixel">Pixel Art</option>
+                </select>
+            </div>
+
+            <div class="panel-section">
+                <span class="label">RECORDS</span>
+                <div id="hs-list-panel"></div>
+                <button id="hs-reset-btn" class="small-btn">Reset</button>
+            </div>
+
             <div class="panel-section controls">
-                <span class="label">CONTROLS</span>
+                <span class="label">CONTROLES</span>
                 <ul>
                     <li><kbd>←</kbd><kbd>→</kbd> mover</li>
                     <li><kbd>↑</kbd> rotar</li>
                     <li><kbd>↓</kbd> bajar</li>
                     <li><kbd>Space</kbd> caída</li>
-                    <li><kbd>P</kbd> pausa</li>
+                    <li><kbd>P</kbd><kbd>Esc</kbd> pausa</li>
                 </ul>
             </div>
         </aside>
@@ -45,9 +61,58 @@
 
     <div id="overlay" class="overlay hidden">
         <div class="overlay-box">
-            <p id="overlay-title">GAME OVER</p>
-            <p id="overlay-score"></p>
-            <button id="restart-btn">Reiniciar</button>
+
+            <!-- Start Screen -->
+            <div id="scr-start">
+                <p class="screen-title title-start">TETRIS</p>
+                <div id="start-hs"></div>
+                <p class="press-key">Presiona ENTER para empezar</p>
+            </div>
+
+            <!-- Pause Menu -->
+            <div id="scr-pause" class="hidden">
+                <p class="screen-title">PAUSA</p>
+                <button class="menu-btn" id="btn-resume">Reanudar</button>
+                <button class="menu-btn" id="btn-pause-restart">Reiniciar</button>
+                <div class="menu-section">
+                    <span class="label">CONTROLES</span>
+                    <ul class="controls-list">
+                        <li><kbd>←</kbd><kbd>→</kbd> mover</li>
+                        <li><kbd>↑</kbd> rotar</li>
+                        <li><kbd>↓</kbd> bajar</li>
+                        <li><kbd>Space</kbd> caída</li>
+                        <li><kbd>P</kbd><kbd>Esc</kbd> pausa</li>
+                    </ul>
+                </div>
+                <div class="menu-section">
+                    <span class="label">NIVEL INICIAL</span>
+                    <select id="lvl-select">
+                        <option value="1">1</option><option value="2">2</option>
+                        <option value="3">3</option><option value="4">4</option>
+                        <option value="5">5</option><option value="6">6</option>
+                        <option value="7">7</option><option value="8">8</option>
+                        <option value="9">9</option><option value="10">10</option>
+                        <option value="11">11</option><option value="12">12</option>
+                        <option value="13">13</option><option value="14">14</option>
+                        <option value="15">15</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Game Over -->
+            <div id="scr-gameover" class="hidden">
+                <p class="screen-title title-gameover">GAME OVER</p>
+                <p id="go-score"></p>
+                <p id="go-bests"></p>
+                <div class="name-row hidden" id="name-row">
+                    <input id="name-input" maxlength="8" placeholder="Tu nombre">
+                    <button id="save-btn">Guardar</button>
+                </div>
+                <div id="go-hs"></div>
+                <button class="menu-btn" id="go-restart">Reiniciar</button>
+                <button class="menu-btn small-btn" id="go-hs-reset">Reset records</button>
+            </div>
+
         </div>
     </div>
 </div>
