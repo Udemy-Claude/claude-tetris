@@ -63,6 +63,10 @@ body {
   letter-spacing: 1px;
 }
 
+.value--sm {
+  font-size: 14px;
+}
+
 #next-canvas {
   display: block;
   border: 1px solid #2a2a3a;
