@@ -45,9 +45,27 @@
 
     <div id="overlay" class="overlay hidden">
       <div class="overlay-box">
-        <p id="overlay-title">GAME OVER</p>
+        <p id="overlay-title">TETRIS</p>
         <p id="overlay-score"></p>
-        <button id="restart-btn">Reiniciar</button>
+
+        <!-- High score name input -->
+        <div id="hs-input-area" class="hs-hidden">
+          <input type="text" id="hs-name-input" maxlength="10" placeholder="Tu nombre" autocomplete="off" />
+          <button id="hs-save-btn">Guardar</button>
+        </div>
+
+        <!-- Scores table -->
+        <div class="hs-section">
+          <div class="hs-title">MEJORES PUNTUACIONES</div>
+          <ol id="hs-list"></ol>
+          <div class="hs-stats">
+            <span>Mejor combo: <b id="hs-max-combo">0</b></span>
+            <span>Max lineas: <b id="hs-max-lines">0</b></span>
+          </div>
+          <button id="hs-reset-btn">Resetear records</button>
+        </div>
+
+        <button id="restart-btn">Comenzar</button>
       </div>
     </div>
   </div>

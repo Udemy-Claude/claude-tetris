@@ -27,6 +27,7 @@ const PIECES = [
 ];
 
 const LINE_SCORES = [0, 100, 300, 500, 800];
+const STORAGE_KEY = 'tetris_records';
 
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
@@ -39,8 +40,99 @@ const overlay = document.getElementById('overlay');
 const overlayTitle = document.getElementById('overlay-title');
 const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
+const hsInputArea = document.getElementById('hs-input-area');
+const hsNameInput = document.getElementById('hs-name-input');
+const hsSaveBtn = document.getElementById('hs-save-btn');
+const hsList = document.getElementById('hs-list');
+const hsMaxComboEl = document.getElementById('hs-max-combo');
+const hsMaxLinesEl = document.getElementById('hs-max-lines');
+const hsResetBtn = document.getElementById('hs-reset-btn');
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
+let combo, gameMaxCombo;
+
+// ── High Scores persistence ──────────────────────────────────────────
+
+function loadScores() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (_) { /* ignore */ }
+  return { top5: [], maxCombo: 0, maxLines: 0 };
+}
+
+function saveScores(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function isHighScore(score) {
+  const data = loadScores();
+  if (data.top5.length < 5) return true;
+  return score > data.top5[data.top5.length - 1].score;
+}
+
+function addScore(name) {
+  const data = loadScores();
+  const entry = { name, score, lines, level, date: Date.now() };
+  data.top5.push(entry);
+  data.top5.sort((a, b) => b.score - a.score);
+  data.top5.splice(5);
+  saveScores(data);
+  return data.top5.findIndex(e => e.date === entry.date);
+}
+
+function renderScores(highlightIdx) {
+  const data = loadScores();
+
+  hsMaxComboEl.textContent = data.maxCombo;
+  hsMaxLinesEl.textContent = data.maxLines;
+  hsList.innerHTML = '';
+
+  if (data.top5.length === 0) {
+    const li = document.createElement('li');
+    li.textContent = 'Aun no hay puntuaciones';
+    li.style.cssText = 'color: #666; font-size: 12px; justify-content: center;';
+    hsList.appendChild(li);
+    return;
+  }
+
+  data.top5.forEach((entry, i) => {
+    const li = document.createElement('li');
+    li.className = 'hs-rank-' + (i + 1);
+    if (i === highlightIdx) li.classList.add('hs-new-entry');
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'hs-entry-name';
+    nameSpan.textContent = entry.name;
+
+    const scoreSpan = document.createElement('span');
+    scoreSpan.className = 'hs-entry-score';
+    scoreSpan.textContent = entry.score.toLocaleString();
+
+    const detailSpan = document.createElement('span');
+    detailSpan.className = 'hs-entry-detail';
+    detailSpan.textContent = 'Lv.' + entry.level + ' / ' + entry.lines + ' lineas';
+
+    li.appendChild(nameSpan);
+    li.appendChild(scoreSpan);
+    li.appendChild(detailSpan);
+    hsList.appendChild(li);
+  });
+}
+
+// ── Welcome screen ───────────────────────────────────────────────────
+
+function showWelcome() {
+  overlayTitle.textContent = 'TETRIS';
+  overlayScore.textContent = '';
+  restartBtn.textContent = 'Comenzar';
+  hsInputArea.classList.add('hs-hidden');
+  gameOver = true;
+  renderScores();
+  overlay.classList.remove('hidden');
+}
+
+// ── Board & pieces ───────────────────────────────────────────────────
 
 function createBoard() {
   return Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
@@ -104,11 +196,15 @@ function clearLines() {
     }
   }
   if (cleared) {
+    combo++;
+    if (combo > gameMaxCombo) gameMaxCombo = combo;
     lines += cleared;
     score += (LINE_SCORES[cleared] || 0) * level;
     level = Math.floor(lines / 10) + 1;
     dropInterval = Math.max(100, 1000 - (level - 1) * 90);
     updateHUD();
+  } else {
+    combo = 0;
   }
 }
 
@@ -155,6 +251,8 @@ function updateHUD() {
   linesEl.textContent = lines;
   levelEl.textContent = level;
 }
+
+// ── Rendering ────────────────────────────────────────────────────────
 
 function drawBlock(context, x, y, colorIndex, size, alpha) {
   if (!colorIndex) return;
@@ -218,11 +316,31 @@ function drawNext() {
       drawBlock(nextCtx, offX + c, offY + r, shape[r][c], NB);
 }
 
+// ── Game lifecycle ───────────────────────────────────────────────────
+
 function endGame() {
   gameOver = true;
   cancelAnimationFrame(animId);
+
+  // Update all-time records
+  const data = loadScores();
+  if (gameMaxCombo > data.maxCombo) data.maxCombo = gameMaxCombo;
+  if (lines > data.maxLines) data.maxLines = lines;
+  saveScores(data);
+
   overlayTitle.textContent = 'GAME OVER';
-  overlayScore.textContent = `Puntuación: ${score.toLocaleString()}`;
+  overlayScore.textContent = 'Puntuación: ' + score.toLocaleString();
+  restartBtn.textContent = 'Reiniciar';
+  renderScores();
+
+  if (isHighScore(score)) {
+    hsInputArea.classList.remove('hs-hidden');
+    hsNameInput.value = '';
+    hsNameInput.focus();
+  } else {
+    hsInputArea.classList.add('hs-hidden');
+  }
+
   overlay.classList.remove('hidden');
 }
 
@@ -231,16 +349,21 @@ function togglePause() {
   paused = !paused;
   if (!paused) {
     lastTime = performance.now();
+    overlay.classList.add('hidden');
     loop(lastTime);
   } else {
     cancelAnimationFrame(animId);
     overlayTitle.textContent = 'PAUSA';
     overlayScore.textContent = '';
+    hsInputArea.classList.add('hs-hidden');
+    restartBtn.textContent = 'Reiniciar';
+    renderScores();
     overlay.classList.remove('hidden');
   }
 }
 
 function loop(ts) {
+  if (gameOver) return;
   const dt = ts - lastTime;
   lastTime = ts;
   dropAccum += dt;
@@ -261,6 +384,8 @@ function init() {
   score = 0;
   lines = 0;
   level = 1;
+  combo = 0;
+  gameMaxCombo = 0;
   paused = false;
   gameOver = false;
   dropInterval = 1000;
@@ -273,6 +398,8 @@ function init() {
   cancelAnimationFrame(animId);
   animId = requestAnimationFrame(loop);
 }
+
+// ── Input ────────────────────────────────────────────────────────────
 
 document.addEventListener('keydown', e => {
   if (e.code === 'KeyP') { togglePause(); return; }
@@ -301,4 +428,19 @@ document.addEventListener('keydown', e => {
 
 restartBtn.addEventListener('click', init);
 
-init();
+hsSaveBtn.addEventListener('click', function saveHandler() {
+  const name = hsNameInput.value.trim() || 'AAA';
+  const idx = addScore(name);
+  renderScores(idx);
+  hsInputArea.classList.add('hs-hidden');
+  hsNameInput.value = '';
+});
+
+hsResetBtn.addEventListener('click', function () {
+  if (confirm('¿Estas seguro de borrar todos los records?')) {
+    localStorage.removeItem(STORAGE_KEY);
+    renderScores();
+  }
+});
+
+showWelcome();
