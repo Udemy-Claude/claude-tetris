@@ -231,6 +231,7 @@ function drawBlock(context, x, y, colorIndex, size, alpha) {
     context.fillStyle = color;
     context.fillRect(px, py, innerW, innerH);
     context.shadowBlur = 0;
+    context.shadowColor = 'transparent';
   } else if (style === 'pastel') {
     const rad = 4;
     context.fillStyle = color;
