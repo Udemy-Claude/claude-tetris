@@ -36,11 +36,14 @@ const scoreEl = document.getElementById('score');
 const linesEl = document.getElementById('lines');
 const levelEl = document.getElementById('level');
 const overlay = document.getElementById('overlay');
-const overlayTitle = document.getElementById('overlay-title');
-const overlayScore = document.getElementById('overlay-score');
-const restartBtn = document.getElementById('restart-btn');
+const overlayContent = document.getElementById('overlay-content');
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
+let initialLevel = 1;
+
+/* ------------------------------------------------------------------ */
+/*  Board & pieces                                                     */
+/* ------------------------------------------------------------------ */
 
 function createBoard() {
   return Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
@@ -85,6 +88,10 @@ function tryRotate() {
     }
   }
 }
+
+/* ------------------------------------------------------------------ */
+/*  Piece lifecycle                                                    */
+/* ------------------------------------------------------------------ */
 
 function merge() {
   for (let r = 0; r < current.shape.length; r++)
@@ -156,6 +163,10 @@ function updateHUD() {
   levelEl.textContent = level;
 }
 
+/* ------------------------------------------------------------------ */
+/*  Rendering                                                          */
+/* ------------------------------------------------------------------ */
+
 function drawBlock(context, x, y, colorIndex, size, alpha) {
   if (!colorIndex) return;
   const color = COLORS[colorIndex];
@@ -218,11 +229,126 @@ function drawNext() {
       drawBlock(nextCtx, offX + c, offY + r, shape[r][c], NB);
 }
 
+/* ------------------------------------------------------------------ */
+/*  Overlay / Menu helpers                                             */
+/* ------------------------------------------------------------------ */
+
+function getMenuButtons() {
+  return overlayContent.querySelectorAll('.menu-btn');
+}
+
+function focusMenuItem(idx) {
+  const btns = getMenuButtons();
+  if (!btns.length) return;
+  if (idx < 0) idx = btns.length - 1;
+  if (idx >= btns.length) idx = 0;
+  btns.forEach((b, i) => b.classList.toggle('focused', i === idx));
+  btns[idx].focus();
+}
+
+function handleMenuNav(e) {
+  const btns = getMenuButtons();
+  if (!btns.length) return;
+  const current = document.activeElement;
+  let idx = Array.from(btns).indexOf(current);
+  if (idx === -1) idx = 0;
+
+  switch (e.code) {
+    case 'ArrowUp':
+      e.preventDefault();
+      focusMenuItem(idx - 1);
+      break;
+    case 'ArrowDown':
+      e.preventDefault();
+      focusMenuItem(idx + 1);
+      break;
+    case 'Enter':
+      e.preventDefault();
+      if (current && current.dataset.action) {
+        handleMenuAction(current.dataset.action);
+      }
+      break;
+  }
+}
+
+function handleMenuAction(action) {
+  switch (action) {
+    case 'resume':
+      togglePause();
+      break;
+    case 'restart':
+      init();
+      break;
+    case 'toggle-controls':
+      const section = document.getElementById('menu-controls-section');
+      if (section) section.classList.toggle('hidden');
+      break;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Overlay content builders                                           */
+/* ------------------------------------------------------------------ */
+
+function showPauseMenu() {
+  overlayContent.innerHTML = `
+    <p class="overlay-title">PAUSA</p>
+    <button class="menu-btn" data-action="resume">Reanudar</button>
+    <button class="menu-btn" data-action="restart">Reiniciar</button>
+    <button class="menu-btn" data-action="toggle-controls">Controles</button>
+    <div id="menu-controls-section" class="menu-controls hidden">
+      <h4>TECLAS</h4>
+      <ul>
+        <li><kbd>←</kbd><kbd>→</kbd> mover</li>
+        <li><kbd>↑</kbd> rotar</li>
+        <li><kbd>↓</kbd> bajar</li>
+        <li><kbd>Space</kbd> caída</li>
+        <li><kbd>P</kbd><kbd>Esc</kbd> pausa</li>
+      </ul>
+    </div>
+    <div class="level-selector">
+      <label for="level-input">Nivel inicial</label>
+      <input type="number" id="level-input" min="1" max="20" value="${initialLevel}">
+    </div>
+  `;
+
+  // Setup level input handler
+  const levelInput = document.getElementById('level-input');
+  levelInput.addEventListener('change', () => {
+    let val = parseInt(levelInput.value, 10);
+    if (isNaN(val) || val < 1) val = 1;
+    if (val > 20) val = 20;
+    levelInput.value = val;
+    initialLevel = val;
+  });
+
+  // Focus first menu button
+  requestAnimationFrame(() => focusMenuItem(0));
+}
+
+function showGameOverScreen() {
+  overlayContent.innerHTML = `
+    <p class="overlay-title">GAME OVER</p>
+    <p class="overlay-score">Puntuación: ${score.toLocaleString()}</p>
+    <button class="menu-btn" data-action="restart">Reiniciar</button>
+  `;
+
+  requestAnimationFrame(() => focusMenuItem(0));
+}
+
+function onOverlayClick(e) {
+  const btn = e.target.closest('[data-action]');
+  if (btn) handleMenuAction(btn.dataset.action);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Game loop control                                                  */
+/* ------------------------------------------------------------------ */
+
 function endGame() {
   gameOver = true;
   cancelAnimationFrame(animId);
-  overlayTitle.textContent = 'GAME OVER';
-  overlayScore.textContent = `Puntuación: ${score.toLocaleString()}`;
+  showGameOverScreen();
   overlay.classList.remove('hidden');
 }
 
@@ -230,12 +356,12 @@ function togglePause() {
   if (gameOver) return;
   paused = !paused;
   if (!paused) {
+    overlay.classList.add('hidden');
     lastTime = performance.now();
     loop(lastTime);
   } else {
     cancelAnimationFrame(animId);
-    overlayTitle.textContent = 'PAUSA';
-    overlayScore.textContent = '';
+    showPauseMenu();
     overlay.classList.remove('hidden');
   }
 }
@@ -256,14 +382,18 @@ function loop(ts) {
   animId = requestAnimationFrame(loop);
 }
 
+/* ------------------------------------------------------------------ */
+/*  Init                                                               */
+/* ------------------------------------------------------------------ */
+
 function init() {
   board = createBoard();
   score = 0;
   lines = 0;
-  level = 1;
+  level = initialLevel;
   paused = false;
   gameOver = false;
-  dropInterval = 1000;
+  dropInterval = Math.max(100, 1000 - (level - 1) * 90);
   dropAccum = 0;
   lastTime = performance.now();
   next = randomPiece();
@@ -274,9 +404,24 @@ function init() {
   animId = requestAnimationFrame(loop);
 }
 
+/* ------------------------------------------------------------------ */
+/*  Input                                                              */
+/* ------------------------------------------------------------------ */
+
 document.addEventListener('keydown', e => {
-  if (e.code === 'KeyP') { togglePause(); return; }
-  if (paused || gameOver) return;
+  if (e.code === 'KeyP' || e.code === 'Escape') {
+    togglePause();
+    return;
+  }
+
+  // Menu keyboard navigation when paused
+  if (paused) {
+    handleMenuNav(e);
+    return;
+  }
+
+  if (gameOver) return;
+
   switch (e.code) {
     case 'ArrowLeft':
       if (!collide(current.shape, current.x - 1, current.y)) current.x--;
@@ -299,6 +444,7 @@ document.addEventListener('keydown', e => {
   updateHUD();
 });
 
-restartBtn.addEventListener('click', init);
+// Persistent click delegation on overlay content
+overlayContent.addEventListener('click', onOverlayClick);
 
 init();
