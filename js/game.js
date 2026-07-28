@@ -172,7 +172,8 @@ function escHtml(s) {
     d.textContent = s;
     return d.innerHTML;
 }
-/** Renderiza la lista de records en un contenedor, resaltando una puntuación si se pasa highlight. */
+/** Renderiza la lista de records en un contenedor, resaltando una puntuación si se pasa highlight.
+ *  Muestra columnas: puesto, nombre, líneas, combo, puntuación — usando datos guardados. */
 function renderHighScores(containerId, highlight) {
     const el = document.getElementById(containerId);
     const scores = loadHighScores();
@@ -180,11 +181,18 @@ function renderHighScores(containerId, highlight) {
         el.innerHTML = '<p class="hs-empty-msg">Sin records aun</p>';
         return;
     }
-    let html = '<ol class="hs-ol">';
+    const hasDetail = scores.some(s => s.lines !== undefined || s.combo !== undefined);
+    let html = '';
+    if (hasDetail) {
+        html += '<div class="hs-header"><span></span><span>Nombre</span><span title="Lineas">L</span><span title="Combo">C</span><span>Pts</span></div>';
+    }
+    html += '<ol class="hs-ol">';
     const rankClasses = ['', 'hs-top1', 'hs-top2', 'hs-top3'];
     scores.forEach((s, i) => {
         const cls = (i < 3 ? rankClasses[i + 1] : '') + (highlight && s.score === highlight ? ' is-new' : '');
-        html += `<li class="${cls}"><span class="hs-rank">${i + 1}</span><span class="hs-name">${escHtml(s.name)}</span><span class="hs-score-val">${s.score.toLocaleString()}</span></li>`;
+        const linesStr = s.lines !== undefined ? s.lines : '-';
+        const comboStr = s.combo !== undefined ? s.combo : '-';
+        html += `<li class="${cls}"><span class="hs-rank">${i + 1}</span><span class="hs-name">${escHtml(s.name)}</span><span class="hs-detail">${linesStr}</span><span class="hs-detail">${comboStr}</span><span class="hs-score-val">${s.score.toLocaleString()}</span></li>`;
     });
     html += '</ol>';
     el.innerHTML = html;
@@ -554,6 +562,12 @@ document.getElementById('skin-select').addEventListener('change', function () {
 /** Cambio de nivel inicial desde el menu de pausa. */
 document.getElementById('lvl-select').addEventListener('change', function () {
     initialLevel = parseInt(this.value, 10);
+});
+/** Toggle controles en el menu de pausa. */
+document.getElementById('btn-toggle-controls').addEventListener('click', function () {
+    const list = document.getElementById('pause-controls-list');
+    list.classList.toggle('hidden');
+    this.textContent = list.classList.contains('hidden') ? 'Ver controles' : 'Ocultar controles';
 });
 /** Boton Reanudar del menu de pausa. */
 document.getElementById('btn-resume').addEventListener('click', togglePause);
