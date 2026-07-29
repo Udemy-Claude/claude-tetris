@@ -40,6 +40,12 @@
                 </select>
             </div>
 
+            <div class="panel-section">
+                <span class="label">RECORDS</span>
+                <div id="hs-list-panel"></div>
+                <button id="hs-reset-btn" class="small-btn">Reset</button>
+            </div>
+
             <div class="panel-section controls">
                 <span class="label">CONTROLS</span>
                 <ul>
@@ -53,11 +59,27 @@
         </aside>
     </div>
 
-    <div id="overlay" class="overlay hidden">
-        <div class="overlay-box">
+    <div id="overlay" class="overlay">
+        <!-- START SCREEN -->
+        <div id="scr-start">
+            <p id="start-title">TETRIS</p>
+            <button id="start-btn" class="menu-btn">JUGAR</button>
+            <div id="start-hs"></div>
+        </div>
+
+        <!-- GAME OVER / PAUSE SCREEN -->
+        <div id="scr-gameover" class="overlay-box hidden">
             <p id="overlay-title">GAME OVER</p>
-            <p id="overlay-score"></p>
-            <button id="restart-btn">Reiniciar</button>
+            <p id="overlay-score" class="go-only"></p>
+            <p id="go-score" class="go-only"></p>
+            <p id="go-bests" class="go-only"></p>
+            <div id="name-row" class="go-only hidden">
+                <input id="name-input" maxlength="8" placeholder="Tu nombre">
+                <button id="save-btn">Guardar</button>
+            </div>
+            <div id="go-hs" class="go-only"></div>
+            <button id="go-hs-reset" class="menu-btn small-btn go-only">Reset records</button>
+            <button id="restart-btn" class="menu-btn">Reiniciar</button>
         </div>
     </div>
 </div>
