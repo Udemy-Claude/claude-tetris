@@ -70,6 +70,21 @@ body {
     border-radius: 4px;
 }
 
+#skin-select {
+    background: #1a1a25;
+    color: #e0e0e0;
+    border: 1px solid #2a2a3a;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    outline: none;
+}
+#skin-select:focus {
+    border-color: #7aa2f7;
+}
+
 /* ---- Controles ---- */
 .controls ul {
     list-style: none;
