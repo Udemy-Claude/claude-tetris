@@ -35,10 +35,10 @@ body {
 
 /* ---- Panel lateral ---- */
 .panel {
-    width: 160px;
+    width: 170px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
     padding-top: 4px;
 }
 
@@ -68,79 +68,6 @@ body {
     border: 1px solid #2a2a3a;
     background: #1a1a25;
     border-radius: 4px;
-}
-
-#skin-select {
-    background: #1a1a25;
-    color: #e0e0e0;
-    border: 1px solid #2a2a3a;
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-size: 12px;
-    cursor: pointer;
-    font-family: inherit;
-    outline: none;
-}
-#skin-select:focus {
-    border-color: #7aa2f7;
-}
-
-/* ---- Records en panel ---- */
-#hs-list-panel {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 11px;
-    line-height: 1.6;
-    color: #aaa;
-    min-height: 60px;
-}
-
-.hs-entry {
-    display: flex;
-    justify-content: space-between;
-    gap: 4px;
-}
-
-.hs-entry .hs-rank {
-    color: #555570;
-    width: 16px;
-    text-align: right;
-    flex-shrink: 0;
-}
-
-.hs-entry .hs-name {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.hs-entry .hs-score-val {
-    color: #7aa2f7;
-    text-align: right;
-    flex-shrink: 0;
-}
-
-.hs-empty {
-    color: #3a3a4a;
-    font-size: 10px;
-    font-style: italic;
-}
-
-.small-btn {
-    background: #2a2a3a;
-    color: #888;
-    border: 1px solid #3a3a5a;
-    border-radius: 4px;
-    padding: 4px 10px;
-    font-size: 10px;
-    font-family: inherit;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-}
-
-.small-btn:hover {
-    background: #3a3a5a;
-    color: #ccc;
 }
 
 /* ---- Controles ---- */
@@ -176,9 +103,10 @@ kbd {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(10, 10, 20, 0.75);
-    backdrop-filter: blur(4px);
+    background: rgba(10, 10, 20, 0.8);
+    backdrop-filter: blur(5px);
     border-radius: 4px;
+    z-index: 10;
 }
 
 .overlay.hidden {
@@ -189,23 +117,58 @@ kbd {
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
     align-items: center;
+    min-width: 220px;
 }
 
-#overlay-title {
+.overlay-box .hidden {
+    display: none;
+}
+
+/* ---- Screen titles ---- */
+.screen-title {
     font-size: 28px;
     font-weight: 800;
     letter-spacing: 4px;
+}
+
+.title-start {
+    font-size: 36px;
+    color: #7aa2f7;
+    letter-spacing: 8px;
+}
+
+.title-gameover {
     color: #e57373;
 }
 
-#overlay-score {
+/* ---- Pause screen title ---- */
+#scr-pause .screen-title {
+    color: #ffd54f;
+}
+
+/* ---- Start screen ---- */
+.press-key {
+    font-size: 13px;
+    color: #777;
+    animation: blink 1.2s ease-in-out infinite;
+    margin-top: 8px;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* ---- Game over ---- */
+#go-score {
     font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
+    font-size: 16px;
     color: #7aa2f7;
 }
 
+/* ---- Menu buttons ---- */
 .menu-btn {
     background: #7aa2f7;
     color: #0f0f17;
@@ -217,144 +180,158 @@ kbd {
     cursor: pointer;
     letter-spacing: 1px;
     transition: background 0.15s;
+    min-width: 160px;
 }
 
 .menu-btn:hover {
     background: #9bbdff;
 }
 
-.menu-btn.small-btn {
-    padding: 6px 16px;
-    font-size: 11px;
-}
-
-/* ---- Start screen ---- */
-#scr-start {
-    text-align: center;
+/* ---- Menu sections ---- */
+.menu-section {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    align-items: center;
-}
-
-#start-title {
-    font-size: 36px;
-    font-weight: 900;
-    letter-spacing: 8px;
-    color: #e0e0e0;
-}
-
-#start-hs {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 13px;
-    line-height: 1.8;
-    color: #aaa;
-    min-width: 180px;
-    margin-top: 8px;
-}
-
-/* ---- Game-over-only items ---- */
-#scr-gameover .go-only {
-    display: none;
-}
-
-#scr-gameover.show-go .go-only {
-    display: block;
-}
-
-#scr-gameover.show-go #name-row.go-only,
-#scr-gameover.show-go #go-hs.go-only,
-#scr-gameover.show-go #go-hs-reset.go-only {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     gap: 6px;
+    align-items: center;
+    width: 100%;
 }
 
-#scr-gameover.show-go #overlay-score.go-only,
-#scr-gameover.show-go #go-score.go-only,
-#scr-gameover.show-go #go-bests.go-only {
-    display: block;
+.menu-section .label {
+    font-size: 10px;
 }
 
-/* ---- High scores list (ol) ---- */
-.hs-overlay-title {
-    font-size: 12px;
-    letter-spacing: 2px;
-    color: #555570;
-    font-weight: 600;
-    margin-top: 8px;
-}
-
-.hs-ol {
+.menu-section .controls-list {
     list-style: none;
-    padding: 0;
-    margin: 0;
-    text-align: left;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 13px;
-    line-height: 1.8;
-    min-width: 200px;
-}
-
-.hs-ol li {
     display: flex;
-    gap: 8px;
-    align-items: baseline;
-    padding: 2px 8px;
+    flex-direction: column;
+    gap: 5px;
+    text-align: left;
+}
+
+.menu-section .controls-list li {
+    font-size: 12px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.menu-section .controls-list kbd {
+    background: #22223a;
+    border: 1px solid #3a3a5a;
     border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 11px;
+    font-family: inherit;
+    color: #aaa;
 }
 
-.hs-ol li.is-new {
-    background: rgba(122, 162, 247, 0.15);
-    outline: 1px solid #7aa2f7;
+/* ---- Level selector ---- */
+#lvl-select {
+    background: #1a1a25;
+    color: #ccc;
+    border: 1px solid #3a3a5a;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    width: 80px;
+    text-align: center;
 }
 
-.hs-rank {
-    width: 24px;
-    text-align: right;
-    color: #555570;
-    flex-shrink: 0;
+#lvl-select:focus {
+    outline: none;
+    border-color: #7aa2f7;
 }
 
-.hs-name {
-    flex: 1;
+/* ---- Skin selector ---- */
+#skin-select {
+    background: #1a1a25;
+    color: #ccc;
+    border: 1px solid #3a3a5a;
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    width: 100%;
+}
+
+#skin-select:focus {
+    outline: none;
+    border-color: #7aa2f7;
+}
+
+/* ---- Records panel ---- */
+#hs-list-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 11px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#hs-list-panel .hs-empty {
+    color: #555;
+    font-size: 11px;
+    font-family: inherit;
+}
+
+.hs-entry {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.hs-entry .hs-rank {
+    color: #888;
+    min-width: 12px;
+    font-weight: 700;
+}
+
+.hs-entry .hs-name {
+    color: #ccc;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    flex: 1;
 }
 
-.hs-score-val {
-    text-align: right;
-    color: #7aa2f7;
-    flex-shrink: 0;
-}
-
-/* Top ranks */
-.hs-top1 .hs-rank { color: #ffd54f; }
-.hs-top2 .hs-rank { color: #bdbdbd; }
-.hs-top3 .hs-rank { color: #ffb74d; }
-
-/* ---- Game over score details ---- */
-#go-score {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 16px;
+.hs-entry .hs-score-val {
     color: #7aa2f7;
     font-weight: 700;
 }
 
-#go-bests {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 12px;
+/* ---- Small button ---- */
+.small-btn {
+    background: #2a2a3a;
     color: #888;
+    border: 1px solid #3a3a5a;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, color 0.15s;
 }
 
-/* ---- Name input row ---- */
+.small-btn:hover {
+    background: #3a3a4a;
+    color: #ccc;
+}
+
+/* ---- Game over details ---- */
+#go-bests {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    color: #999;
+}
+
 .name-row {
     display: flex;
     gap: 8px;
     align-items: center;
-    margin-top: 4px;
+    justify-content: center;
 }
 
 .name-row.hidden {
@@ -363,25 +340,19 @@ kbd {
 
 #name-input {
     background: #1a1a25;
+    color: #e0e0e0;
     border: 1px solid #3a3a5a;
     border-radius: 4px;
-    padding: 8px 12px;
+    padding: 6px 10px;
     font-size: 14px;
-    font-family: 'Courier New', Courier, monospace;
-    color: #e0e0e0;
-    text-transform: uppercase;
-    width: 140px;
-    outline: none;
-    transition: border-color 0.15s;
+    font-family: inherit;
+    width: 120px;
+    text-align: center;
 }
 
 #name-input:focus {
+    outline: none;
     border-color: #7aa2f7;
-}
-
-#name-input::placeholder {
-    color: #3a3a4a;
-    text-transform: none;
 }
 
 #save-btn {
@@ -389,11 +360,10 @@ kbd {
     color: #0f0f17;
     border: none;
     border-radius: 4px;
-    padding: 8px 16px;
+    padding: 6px 14px;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
-    letter-spacing: 1px;
     transition: background 0.15s;
 }
 
@@ -401,20 +371,74 @@ kbd {
     background: #9bbdff;
 }
 
-#restart-btn {
-    margin-top: 8px;
-    background: #7aa2f7;
-    color: #0f0f17;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 28px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
+/* ---- HS overlay lists ---- */
+.hs-overlay-title {
+    font-size: 12px;
+    color: #888;
     letter-spacing: 1px;
-    transition: background 0.15s;
 }
 
-#restart-btn:hover {
-    background: #9bbdff;
+.hs-ol {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0;
+    margin: 0;
 }
+
+.hs-ol li {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 14px;
+    font-family: 'Courier New', Courier, monospace;
+    padding: 2px 0;
+}
+
+.hs-ol li.is-new {
+    background: rgba(122, 162, 247, 0.15);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin: 0 -6px;
+}
+
+.hs-ol .hs-rank {
+    color: #888;
+    min-width: 16px;
+    font-weight: 700;
+}
+
+.hs-ol .hs-name {
+    color: #ccc;
+    flex: 1;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hs-ol .hs-score-val {
+    color: #7aa2f7;
+    font-weight: 700;
+}
+
+.hs-ol .hs-lines {
+    color: #666;
+    font-size: 12px;
+}
+
+/* ---- Start screen HS ---- */
+#start-hs .hs-ol {
+    gap: 2px;
+}
+
+#start-hs .hs-ol li {
+    font-size: 13px;
+}
+
+#start-hs .hs-empty {
+    color: #555;
+    font-size: 12px;
+}
+
+/* ---- go-only (unused) ---- */

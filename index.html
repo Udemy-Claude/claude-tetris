@@ -47,39 +47,72 @@
             </div>
 
             <div class="panel-section controls">
-                <span class="label">CONTROLS</span>
+                <span class="label">CONTROLES</span>
                 <ul>
                     <li><kbd>←</kbd><kbd>→</kbd> mover</li>
                     <li><kbd>↑</kbd> rotar</li>
                     <li><kbd>↓</kbd> bajar</li>
                     <li><kbd>Space</kbd> caída</li>
-                    <li><kbd>P</kbd> pausa</li>
+                    <li><kbd>P</kbd><kbd>Esc</kbd> pausa</li>
                 </ul>
             </div>
         </aside>
     </div>
 
-    <div id="overlay" class="overlay">
-        <!-- START SCREEN -->
-        <div id="scr-start">
-            <p id="start-title">TETRIS</p>
-            <button id="start-btn" class="menu-btn">JUGAR</button>
-            <div id="start-hs"></div>
-        </div>
+    <div id="overlay" class="overlay hidden">
+        <div class="overlay-box">
 
-        <!-- GAME OVER / PAUSE SCREEN -->
-        <div id="scr-gameover" class="overlay-box hidden">
-            <p id="overlay-title">GAME OVER</p>
-            <p id="overlay-score" class="go-only"></p>
-            <p id="go-score" class="go-only"></p>
-            <p id="go-bests" class="go-only"></p>
-            <div id="name-row" class="go-only hidden">
-                <input id="name-input" maxlength="8" placeholder="Tu nombre">
-                <button id="save-btn">Guardar</button>
+            <!-- Start Screen -->
+            <div id="scr-start" class="hidden">
+                <p class="screen-title title-start">TETRIS</p>
+                <div id="start-hs"></div>
+                <p class="press-key">Presiona ENTER para empezar</p>
             </div>
-            <div id="go-hs" class="go-only"></div>
-            <button id="go-hs-reset" class="menu-btn small-btn go-only">Reset records</button>
-            <button id="restart-btn" class="menu-btn">Reiniciar</button>
+
+            <!-- Pause Menu -->
+            <div id="scr-pause" class="hidden">
+                <p class="screen-title">PAUSA</p>
+                <button class="menu-btn" id="btn-resume">&#9654; Reanudar</button>
+                <button class="menu-btn" id="btn-pause-restart">&#8635; Reiniciar</button>
+                <div class="menu-section">
+                    <span class="label">CONTROLES</span>
+                    <ul class="controls-list">
+                        <li><kbd>&larr;</kbd><kbd>&rarr;</kbd> mover</li>
+                        <li><kbd>&uarr;</kbd> rotar</li>
+                        <li><kbd>&darr;</kbd> bajar</li>
+                        <li><kbd>Space</kbd> caída</li>
+                        <li><kbd>P</kbd><kbd>Esc</kbd> pausa</li>
+                    </ul>
+                </div>
+                <div class="menu-section">
+                    <span class="label">NIVEL INICIAL</span>
+                    <select id="lvl-select">
+                        <option value="1">1</option><option value="2">2</option>
+                        <option value="3">3</option><option value="4">4</option>
+                        <option value="5">5</option><option value="6">6</option>
+                        <option value="7">7</option><option value="8">8</option>
+                        <option value="9">9</option><option value="10">10</option>
+                        <option value="11">11</option><option value="12">12</option>
+                        <option value="13">13</option><option value="14">14</option>
+                        <option value="15">15</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Game Over -->
+            <div id="scr-gameover" class="hidden">
+                <p class="screen-title title-gameover">GAME OVER</p>
+                <p id="go-score"></p>
+                <p id="go-bests"></p>
+                <div class="name-row hidden" id="name-row">
+                    <input id="name-input" maxlength="8" placeholder="Tu nombre">
+                    <button id="save-btn">Guardar</button>
+                </div>
+                <div id="go-hs"></div>
+                <button class="menu-btn" id="go-restart">&#8635; Reiniciar</button>
+                <button class="menu-btn small-btn" id="go-hs-reset">Reset records</button>
+            </div>
+
         </div>
     </div>
 </div>

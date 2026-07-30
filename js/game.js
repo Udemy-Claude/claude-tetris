@@ -4,7 +4,10 @@ const COLS = 10;
 const ROWS = 20;
 const BLOCK = 30;
 
-const RETRO_COLORS = [
+const LS_KEY = 'tetris_highscores';
+const MAX_HS = 5;
+
+const COLORS = [
     null,
     '#4dd0e1', // I - cyan
     '#ffd54f', // O - yellow
@@ -16,7 +19,7 @@ const RETRO_COLORS = [
     '#f06292', // 8  Cruz    pink
     '#4db6ac', // 9  U       teal
     '#ff8a65', // 10 Y       coral
-    '#bdbdbd', // 11 1×1     gray
+    '#bdbdbd', // 11 1x1     gray
     '#a1887f', // 12 hueco   brown
 ];
 
@@ -32,139 +35,108 @@ const PIECES = [
     [[0, 8, 0], [8, 8, 8], [0, 8, 0]],                  // Cruz +
     [[9, 0, 9], [9, 0, 9], [9, 9, 9]],                  // U
     [[10, 0, 10], [10, 10, 10], [0, 10, 0]],            // Y
-    [[11]],                                              // 1×1
-    [[12, 12, 12], [12, 0, 12], [12, 12, 12]],          // 3×3 hueco
+    [[11]],                                              // 1x1
+    [[12, 12, 12], [12, 0, 12], [12, 12, 12]],          // 3x3 hueco
 ];
 
 const LINE_SCORES = [0, 100, 300, 500, 800];
-const LS_KEY = 'tetris_highscores';
-const MAX_HS = 5;
 
-const NEON_COLORS = [
-    null,
-    '#00f5ff',
-    '#ffea00',
-    '#d500ff',
-    '#00ff41',
-    '#ff0044',
-    '#0044ff',
-    '#ff6600',
-    '#ff00aa',
-    '#00ffcc',
-    '#ffaa00',
-    '#ffffff',
-    '#aa00ff',
-];
-
-const PASTEL_COLORS = [
-    null,
-    '#b3e5fc',
-    '#fff9c4',
-    '#e1bee7',
-    '#c8e6c9',
-    '#ffcdd2',
-    '#c5cae9',
-    '#ffe0b2',
-    '#f8bbd0',
-    '#b2dfdb',
-    '#ffccbc',
-    '#e0e0e0',
-    '#d7ccc8',
-];
-
-const PIXEL_COLORS = [...RETRO_COLORS];
-
+/* ---- Temas / Skins ---- */
 const THEMES = {
     retro: {
         name: 'Retro',
-        colors: RETRO_COLORS,
+        colors: COLORS,
         bg: '#1a1a25',
         grid: '#22222e',
-        drawBlock(ctx, x, y, colorIndex, size, alpha) {
+        drawBlock: function (context, x, y, colorIndex, size, alpha) {
             if (!colorIndex) return;
-            const color = this.colors[colorIndex];
-            ctx.globalAlpha = alpha ?? 1;
-            ctx.fillStyle = color;
-            ctx.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
-            ctx.fillStyle = 'rgba(255,255,255,0.12)';
-            ctx.fillRect(x * size + 1, y * size + 1, size - 2, 4);
-            ctx.globalAlpha = 1;
-        },
+            const c = this.colors[colorIndex];
+            context.globalAlpha = alpha ?? 1;
+            context.fillStyle = c;
+            context.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
+            context.fillStyle = 'rgba(255,255,255,0.12)';
+            context.fillRect(x * size + 1, y * size + 1, size - 2, 4);
+            context.globalAlpha = 1;
+        }
     },
     neon: {
         name: 'Neon',
-        colors: NEON_COLORS,
-        bg: '#0a0a1a',
-        grid: '#1a1a3a',
-        drawBlock(ctx, x, y, colorIndex, size, alpha) {
+        colors: [
+            null, '#00e5ff', '#ffee58', '#ea80fc', '#69f0ae',
+            '#ff5252', '#448aff', '#ffab40', '#ff4081', '#1de9b6',
+            '#ff6e40', '#e0e0e0', '#bcaaa4'
+        ],
+        bg: '#000000',
+        grid: '#111118',
+        drawBlock: function (context, x, y, colorIndex, size, alpha) {
             if (!colorIndex) return;
-            const color = this.colors[colorIndex];
-            ctx.save();
-            ctx.globalAlpha = alpha ?? 1;
-            ctx.shadowColor = color;
-            ctx.shadowBlur = 10;
-            ctx.fillStyle = color;
-            ctx.fillRect(x * size + 2, y * size + 2, size - 4, size - 4);
-            ctx.restore();
-        },
+            const c = this.colors[colorIndex];
+            context.globalAlpha = alpha ?? 1;
+            context.shadowColor = c;
+            context.shadowBlur = 10;
+            context.fillStyle = c;
+            context.fillRect(x * size + 2, y * size + 2, size - 4, size - 4);
+            context.shadowBlur = 0;
+            context.globalAlpha = 1;
+        }
     },
     pastel: {
         name: 'Pastel',
-        colors: PASTEL_COLORS,
+        colors: [
+            null, '#b2ebf2', '#ffe082', '#ce93d8', '#a5d6a7',
+            '#ef9a9a', '#9fa8da', '#ffcc80', '#f48fb1', '#80cbc4',
+            '#ffab91', '#cfd8dc', '#bcaaa4'
+        ],
         bg: '#1a1a2e',
         grid: '#2a2a3e',
-        drawBlock(ctx, x, y, colorIndex, size, alpha) {
+        drawBlock: function (context, x, y, colorIndex, size, alpha) {
             if (!colorIndex) return;
-            const color = this.colors[colorIndex];
-            ctx.globalAlpha = alpha ?? 1;
-            ctx.fillStyle = color;
+            const c = this.colors[colorIndex];
+            context.globalAlpha = alpha ?? 1;
+            const pad = 1;
+            const rx = x * size + pad, ry = y * size + pad;
+            const rw = size - pad * 2, rh = size - pad * 2;
             const r = 4;
-            const xp = x * size;
-            const yp = y * size;
-            ctx.beginPath();
-            ctx.moveTo(xp + r, yp);
-            ctx.lineTo(xp + size - r, yp);
-            ctx.quadraticCurveTo(xp + size, yp, xp + size, yp + r);
-            ctx.lineTo(xp + size, yp + size - r);
-            ctx.quadraticCurveTo(xp + size, yp + size, xp + size - r, yp + size);
-            ctx.lineTo(xp + r, yp + size);
-            ctx.quadraticCurveTo(xp, yp + size, xp, yp + size - r);
-            ctx.lineTo(xp, yp + r);
-            ctx.quadraticCurveTo(xp, yp, xp + r, yp);
-            ctx.closePath();
-            ctx.fill();
-            ctx.globalAlpha = 1;
-        },
+            context.fillStyle = c;
+            context.beginPath();
+            context.moveTo(rx + r, ry);
+            context.quadraticCurveTo(rx + rw, ry, rx + rw, ry + r);
+            context.quadraticCurveTo(rx + rw, ry + rh, rx + rw - r, ry + rh);
+            context.quadraticCurveTo(rx, ry + rh, rx, ry + rh - r);
+            context.quadraticCurveTo(rx, ry, rx + r, ry);
+            context.fill();
+            context.globalAlpha = 1;
+        }
     },
     pixel: {
         name: 'Pixel Art',
-        colors: PIXEL_COLORS,
+        colors: COLORS,
         bg: '#1a1a25',
         grid: '#22222e',
-        drawBlock(ctx, x, y, colorIndex, size, alpha) {
+        drawBlock: function (context, x, y, colorIndex, size, alpha) {
             if (!colorIndex) return;
-            const color = this.colors[colorIndex];
-            ctx.globalAlpha = alpha ?? 1;
-            ctx.fillStyle = color;
-            ctx.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
-            ctx.fillStyle = 'rgba(255,255,255,0.25)';
-            ctx.fillRect(x * size + 1, y * size + 1, size - 2, 2);
-            ctx.fillRect(x * size + 1, y * size + 1, 2, size - 2);
-            ctx.fillStyle = 'rgba(0,0,0,0.25)';
-            ctx.fillRect(x * size + 1, y * size + size - 3, size - 2, 2);
-            ctx.fillRect(x * size + size - 3, y * size + 1, 2, size - 2);
-            ctx.fillStyle = 'rgba(0,0,0,0.08)';
-            for (let py = 0; py < size; py += 4) {
-                for (let px = 0; px < size; px += 4) {
-                    ctx.fillRect(x * size + px, y * size + py, 2, 2);
-                }
-            }
-            ctx.globalAlpha = 1;
-        },
-    },
+            const c = this.colors[colorIndex];
+            context.globalAlpha = alpha ?? 1;
+            const x0 = x * size, y0 = y * size;
+            // Base fill
+            context.fillStyle = c;
+            context.fillRect(x0 + 1, y0 + 1, size - 2, size - 2);
+            // Bevel pattern (alternating 2x2 pixels)
+            context.fillStyle = 'rgba(0,0,0,0.15)';
+            for (let bx = 0; bx < size; bx += 2)
+                for (let by = 0; by < size; by += 2)
+                    if ((bx + by) % 4 === 0)
+                        context.fillRect(x0 + bx, y0 + by, 2, 2);
+            context.fillStyle = 'rgba(255,255,255,0.08)';
+            for (let bx = 1; bx < size; bx += 2)
+                for (let by = 1; by < size; by += 2)
+                    context.fillRect(x0 + bx, y0 + by, 1, 1);
+            context.globalAlpha = 1;
+        }
+    }
 };
 
-let currentTheme;
+let currentTheme = THEMES.retro;
 
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
@@ -174,137 +146,31 @@ const scoreEl = document.getElementById('score');
 const linesEl = document.getElementById('lines');
 const levelEl = document.getElementById('level');
 const overlay = document.getElementById('overlay');
-const overlayTitle = document.getElementById('overlay-title');
-const overlayScore = document.getElementById('overlay-score');
-const restartBtn = document.getElementById('restart-btn');
-	const skinSelect = document.getElementById('skin-select');
-	const scrStart = document.getElementById('scr-start');
-	const scrGameover = document.getElementById('scr-gameover');
-	const goScoreEl = document.getElementById('go-score');
-	const goBestsEl = document.getElementById('go-bests');
-	const nameRow = document.getElementById('name-row');
-	const nameInput = document.getElementById('name-input');
-	const saveBtn = document.getElementById('save-btn');
-	const goHsEl = document.getElementById('go-hs');
-	const goHsReset = document.getElementById('go-hs-reset');
-	const startHsEl = document.getElementById('start-hs');
-	const startBtn = document.getElementById('start-btn');
-	const hsListPanel = document.getElementById('hs-list-panel');
-	const hsResetBtn = document.getElementById('hs-reset-btn');
+const lvlSelect = document.getElementById('lvl-select');
+const resumeBtn = document.getElementById('btn-resume');
+const restartBtns = [
+    document.getElementById('btn-pause-restart'),
+    document.getElementById('go-restart'),
+];
+const skinSelect = document.getElementById('skin-select');
+const scrStart = document.getElementById('scr-start');
+const scrGameover = document.getElementById('scr-gameover');
+const goScoreEl = document.getElementById('go-score');
+const goBestsEl = document.getElementById('go-bests');
+const nameRow = document.getElementById('name-row');
+const nameInput = document.getElementById('name-input');
+const saveBtn = document.getElementById('save-btn');
+const goHsEl = document.getElementById('go-hs');
+const goHsReset = document.getElementById('go-hs-reset');
+const startHsEl = document.getElementById('start-hs');
+const hsListPanel = document.getElementById('hs-list-panel');
+const hsResetBtn = document.getElementById('hs-reset-btn');
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId, classicMode;
+let initialLevel;
 let combo = 0;
 let maxCombo = 0;
 let savedName = '';
-
-/* ==============================
-   HIGH SCORES — localStorage
-   ============================== */
-
-function loadHighScores() {
-    try {
-        const raw = localStorage.getItem(LS_KEY);
-        if (!raw) return [];
-        const data = JSON.parse(raw);
-        if (!Array.isArray(data)) return [];
-        // Validate each entry has required fields
-        return data.filter(function (e) {
-            return e && typeof e === 'object' && typeof e.score === 'number';
-        });
-    } catch {
-        return [];
-    }
-}
-
-function saveHighScores(scores) {
-    try {
-        localStorage.setItem(LS_KEY, JSON.stringify(scores));
-    } catch {
-        // localStorage might be full or unavailable — silently ignore
-    }
-}
-
-function isHighScore(score) {
-    const scores = loadHighScores();
-    if (scores.length < MAX_HS) return true;
-    return score > scores[scores.length - 1].score;
-}
-
-function addHighScore(name) {
-    const scores = loadHighScores();
-    scores.push({
-        name: name,
-        score: score,
-        lines: lines,
-        combo: maxCombo,
-        date: new Date().toISOString()
-    });
-    scores.sort((a, b) => b.score - a.score);
-    saveHighScores(scores.slice(0, MAX_HS));
-}
-
-function resetHighScores() {
-    saveHighScores([]);
-    renderPanelHighScores();
-    renderHighScores('start-hs');
-    renderHighScores('go-hs');
-}
-
-function escHtml(s) {
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(s));
-    return div.innerHTML;
-}
-
-function renderHighScores(containerId, highlight) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    const scores = loadHighScores();
-    if (!scores.length) {
-        container.innerHTML = '<p class="hs-empty">Sin records aun</p>';
-        return;
-    }
-    let html = '<p class="hs-overlay-title">MEJORES PUNTUACIONES</p><ol class="hs-ol">';
-    scores.forEach((entry, i) => {
-        const rank = i + 1;
-        let liClass = '';
-        if (rank === 1) liClass = 'hs-top1';
-        else if (rank === 2) liClass = 'hs-top2';
-        else if (rank === 3) liClass = 'hs-top3';
-        const isNew = highlight && entry.name === highlight;
-        if (isNew) liClass = liClass ? liClass + ' is-new' : 'is-new';
-        const classAttr = liClass ? ' class="' + liClass + '"' : '';
-        html += `<li${classAttr}>` +
-            `<span class="hs-rank">${rank}</span>` +
-            `<span class="hs-name">${escHtml(entry.name)}</span>` +
-            `<span class="hs-score-val">${entry.score.toLocaleString()}</span>` +
-            `</li>`;
-    });
-    html += '</ol>';
-    container.innerHTML = html;
-}
-
-function renderPanelHighScores() {
-    const scores = loadHighScores();
-    if (!scores.length) {
-        hsListPanel.innerHTML = '<span class="hs-empty">—</span>';
-        return;
-    }
-    let html = '';
-    scores.slice(0, 3).forEach((entry, i) => {
-        const rank = i + 1;
-        html += '<div class="hs-entry">' +
-            `<span class="hs-rank">${rank}</span>` +
-            `<span class="hs-name">${escHtml(entry.name)}</span>` +
-            `<span class="hs-score-val">${entry.score.toLocaleString()}</span>` +
-            '</div>';
-    });
-    hsListPanel.innerHTML = html;
-}
-
-/* ==============================
-   BOARD & PIECES
-   ============================== */
 
 function createBoard() {
     return Array.from({length: ROWS}, () => new Array(COLS).fill(0));
@@ -371,7 +237,7 @@ function clearLines() {
     if (cleared) {
         lines += cleared;
         score += (LINE_SCORES[cleared] || 0) * level;
-        level = Math.floor(lines / 10) + 1;
+        level = initialLevel + Math.floor(lines / 10);
         dropInterval = Math.max(100, 1000 - (level - 1) * 90);
         updateHUD();
     }
@@ -403,8 +269,8 @@ function softDrop() {
 
 function lockPiece() {
     merge();
-    const cleared = clearLines();
-    if (cleared > 0) {
+    const c = clearLines();
+    if (c > 0) {
         combo++;
         if (combo > maxCombo) maxCombo = combo;
     } else {
@@ -453,19 +319,16 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawGrid();
 
-    // board
     for (let r = 0; r < ROWS; r++)
         for (let c = 0; c < COLS; c++)
             drawBlock(ctx, c, r, board[r][c], BLOCK);
 
-    // ghost
     const gy = ghostY();
     for (let r = 0; r < current.shape.length; r++)
         for (let c = 0; c < current.shape[r].length; c++)
             if (current.shape[r][c])
                 drawBlock(ctx, current.x + c, gy + r, current.shape[r][c], BLOCK, 0.2);
 
-    // current piece
     for (let r = 0; r < current.shape.length; r++)
         for (let c = 0; c < current.shape[r].length; c++)
             drawBlock(ctx, current.x + c, current.y + r, current.shape[r][c], BLOCK);
@@ -482,51 +345,138 @@ function drawNext() {
             drawBlock(nextCtx, offX + c, offY + r, shape[r][c], NB);
 }
 
-function applyTheme() {
-    currentTheme = THEMES[skinSelect.value] || THEMES.retro;
+function hideAllScreens() {
+    document.querySelectorAll('#overlay .overlay-box > div').forEach(el => el.classList.add('hidden'));
+}
+
+function showScreen(id) {
+    hideAllScreens();
+    const el = document.getElementById('scr-' + id);
+    if (el) el.classList.remove('hidden');
+    overlay.classList.remove('hidden');
+}
+
+/* ---- High Scores ---- */
+function loadHighScores() {
+    try {
+        const data = localStorage.getItem(LS_KEY);
+        const parsed = data ? JSON.parse(data) : [];
+        if (!Array.isArray(parsed)) return [];
+        return parsed.filter(s => s && typeof s.score === 'number' && typeof s.name === 'string');
+    } catch { return []; }
+}
+
+function saveHighScores(scores) {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(scores)); } catch {}
+}
+
+function isHighScore(score) {
+    const scores = loadHighScores();
+    if (scores.length < MAX_HS) return true;
+    return score > scores[scores.length - 1].score;
+}
+
+function addHighScore(name) {
+    const scores = loadHighScores();
+    scores.push({ name, score, lines, date: new Date().toISOString().slice(0, 10) });
+    scores.sort((a, b) => b.score - a.score);
+    if (scores.length > MAX_HS) scores.length = MAX_HS;
+    saveHighScores(scores);
+    return scores;
+}
+
+function resetHighScores() {
+    if (confirm('¿Resetear todos los records?')) {
+        saveHighScores([]);
+        renderPanelHighScores();
+        renderHighScores('start-hs', false);
+    }
+}
+
+function escHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
+
+function renderHighScores(containerId, highlight) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const scores = loadHighScores();
+    if (!scores.length) {
+        container.innerHTML = '<p class="hs-empty">Sin records</p>';
+        return;
+    }
+    let html = '<ol class="hs-ol">';
+    scores.forEach((s, i) => {
+        const isNew = highlight && s.name === highlight && s.score === score;
+        const cls = isNew ? ' class="is-new"' : '';
+        html += `<li${cls}>` +
+            `<span class="hs-rank">${i + 1}</span>` +
+            `<span class="hs-name">${escHtml(s.name)}</span>` +
+            `<span class="hs-score-val">${s.score.toLocaleString()}</span>` +
+            ' <span class="hs-lines">' + s.lines + 'L</span>' +
+        '</li>';
+    });
+    html += '</ol>';
+    container.innerHTML = html;
+}
+
+function renderPanelHighScores() {
+    if (!hsListPanel) return;
+    const scores = loadHighScores();
+    if (!scores.length) {
+        hsListPanel.innerHTML = '<p class="hs-empty">Sin records</p>';
+        return;
+    }
+    let html = '';
+    scores.forEach((s, i) => {
+        html += '<div class="hs-entry">' +
+            `<span class="hs-rank">${i + 1}</span>` +
+            `<span class="hs-name">${escHtml(s.name)}</span>` +
+            `<span class="hs-score-val">${s.score.toLocaleString()}</span>` +
+        '</div>';
+    });
+    hsListPanel.innerHTML = html;
+}
+
+/* ---- Theme persistence ---- */
+function applyTheme(name) {
+    currentTheme = THEMES[name] || THEMES.retro;
     canvas.style.background = currentTheme.bg;
     nextCanvas.style.background = currentTheme.bg;
 }
 
 function saveTheme(name) {
-    try { localStorage.setItem('tetris_theme', name); } catch (_) {}
+    try { localStorage.setItem('tetris_theme', name); } catch {}
 }
 
 function loadTheme() {
-    try { return localStorage.getItem('tetris_theme') || 'retro'; } catch (_) { return 'retro'; }
-}
-
-function showOverlayScreen(screenId) {
-    scrStart.classList.toggle('hidden', screenId !== 'scr-start');
-    scrGameover.classList.toggle('hidden', screenId !== 'scr-gameover');
-    overlay.classList.remove('hidden');
-}
+    try { return localStorage.getItem('tetris_theme') || 'retro'; } catch { return 'retro'; }
 }
 
 function endGame() {
     gameOver = true;
     cancelAnimationFrame(animId);
 
-    showOverlayScreen('scr-gameover');
-    scrGameover.classList.add('show-go');
+    goScoreEl.textContent = 'Puntuación: ' + score.toLocaleString();
 
-    overlayTitle.textContent = 'GAME OVER';
-    overlayScore.textContent = `Puntuacion: ${score.toLocaleString()}`;
-    goScoreEl.textContent = `Score final: ${score.toLocaleString()}`;
-    goBestsEl.textContent = `Lineas: ${lines}  |  Max combo: ${maxCombo}`;
+    let bests = 'Líneas: ' + lines;
+    if (maxCombo > 0) bests += ' | Mejor combo: ' + maxCombo;
+    goBestsEl.textContent = bests;
 
-    // Check if it's a high score
-    if (isHighScore(score)) {
+    // High-score check
+    const isNew = isHighScore(score) && score > 0;
+    if (isNew) {
         nameRow.classList.remove('hidden');
-        if (savedName) nameInput.value = savedName;
+        nameInput.value = savedName;
         nameInput.focus();
     } else {
         nameRow.classList.add('hidden');
     }
 
-    // Render high scores in game over screen
-    renderHighScores('go-hs');
-    renderPanelHighScores();
+    renderHighScores('go-hs', false);
+    showScreen('gameover');
 }
 
 function togglePause() {
@@ -538,11 +488,7 @@ function togglePause() {
         loop(lastTime);
     } else {
         cancelAnimationFrame(animId);
-        showOverlayScreen('scr-gameover');
-        scrGameover.classList.remove('show-go');
-        overlayTitle.textContent = 'PAUSA';
-        overlayScore.textContent = '';
-        overlay.classList.remove('hidden');
+        showScreen('pause');
     }
 }
 
@@ -563,43 +509,33 @@ function loop(ts) {
 }
 
 function init() {
-    applyTheme();
-    skinSelect.value = loadTheme();
-    applyTheme();
-    saveTheme(skinSelect.value);
     board = createBoard();
     score = 0;
     lines = 0;
-    level = 1;
-    combo = 0;
-    maxCombo = 0;
+    level = initialLevel;
     paused = false;
     gameOver = false;
     classicMode = false;
-    dropInterval = 1000;
+    combo = 0;
+    maxCombo = 0;
+    dropInterval = Math.max(100, 1000 - (level - 1) * 90);
     dropAccum = 0;
     lastTime = performance.now();
     next = randomPiece();
     spawn();
+    if (gameOver) return;
     updateHUD();
+    hideAllScreens();
     overlay.classList.add('hidden');
     cancelAnimationFrame(animId);
     animId = requestAnimationFrame(loop);
 }
 
-/* ==============================
-   EVENT LISTENERS
-   ============================== */
-
+/* ---- Event listeners ---- */
 document.addEventListener('keydown', e => {
-    // Start screen — any key starts the game
-    if (!scrStart.classList.contains('hidden') && !overlay.classList.contains('hidden')) {
-        if (e.code === 'KeyP' || e.code === 'KeyC') return;
-        init();
-        return;
-    }
-
-    if (e.code === 'KeyP') {
+    if (e.code === 'KeyP' || e.code === 'Escape') {
+        const startScreen = document.getElementById('scr-start');
+        if (startScreen && !startScreen.classList.contains('hidden')) return;
         togglePause();
         return;
     }
@@ -608,17 +544,28 @@ document.addEventListener('keydown', e => {
         updateHUD();
         return;
     }
+    if (e.code === 'Enter' && overlay.classList.contains('hidden') === false) {
+        const startScreen = document.getElementById('scr-start');
+        if (startScreen && !startScreen.classList.contains('hidden')) {
+            init();
+            return;
+        }
+    }
     if (paused || gameOver) return;
     switch (e.code) {
+        case 'ArrowLeft':
         case 'KeyM':
             if (!collide(current.shape, current.x - 1, current.y)) current.x--;
             break;
+        case 'ArrowRight':
         case 'Period':
             if (!collide(current.shape, current.x + 1, current.y)) current.x++;
             break;
+        case 'ArrowDown':
         case 'Comma':
             softDrop();
             break;
+        case 'ArrowUp':
         case 'KeyK':
             tryRotate();
             break;
@@ -630,50 +577,44 @@ document.addEventListener('keydown', e => {
     updateHUD();
 });
 
-skinSelect.addEventListener('change', () => {
-    applyTheme();
-    saveTheme(skinSelect.value);
+lvlSelect.addEventListener('change', () => {
+    initialLevel = parseInt(lvlSelect.value, 10) || 1;
 });
 
-restartBtn.addEventListener('click', init);
-startBtn.addEventListener('click', init);
+if (resumeBtn) resumeBtn.addEventListener('click', togglePause);
 
-// Save high score
-saveBtn.addEventListener('click', function () {
-    const name = nameInput.value.trim() || 'Anon';
-    addHighScore(name);
-    savedName = name;
-    nameRow.classList.add('hidden');
-    renderHighScores('go-hs', name);
-    renderPanelHighScores();
-    renderHighScores('start-hs');
+restartBtns.forEach(btn => {
+    if (btn) btn.addEventListener('click', () => { init(); });
 });
 
-nameInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        saveBtn.click();
-    }
-});
+if (skinSelect) {
+    skinSelect.addEventListener('change', () => {
+        applyTheme(skinSelect.value);
+        saveTheme(skinSelect.value);
+    });
+}
 
-// Reset high scores
-hsResetBtn.addEventListener('click', function () {
-    if (confirm('Resetear todos los records?')) {
-        resetHighScores();
-    }
-});
+if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+        const name = nameInput.value.trim() || 'Anónimo';
+        savedName = name;
+        addHighScore(name);
+        renderHighScores('go-hs', name);
+        nameRow.classList.add('hidden');
+        renderPanelHighScores();
+        renderHighScores('start-hs', false);
+    });
+}
 
-goHsReset.addEventListener('click', function () {
-    if (confirm('Resetear todos los records?')) {
-        resetHighScores();
-    }
-});
+if (hsResetBtn) hsResetBtn.addEventListener('click', resetHighScores);
+if (goHsReset) goHsReset.addEventListener('click', resetHighScores);
 
-/* ==============================
-   BOOT
-   ============================== */
+/* ---- Boot ---- */
+const themeName = loadTheme();
+applyTheme(themeName);
+if (skinSelect) skinSelect.value = themeName;
 
-// Show start screen with high scores
+initialLevel = 1;
 renderPanelHighScores();
-renderHighScores('start-hs');
-overlay.classList.remove('hidden');
+renderHighScores('start-hs', false);
+showScreen('start');
